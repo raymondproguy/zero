@@ -14,7 +14,16 @@ export class TemplateManager {
    * Get the correct template path based on options
    */
   getTemplatePath() {
-    const templateType = this.options.auth ? 'auth-enabled' : 'base';
+    let templateType = 'base';
+    
+    if (this.options.auth && this.options.db) {
+      templateType = \`auth-\${this.options.db}\`;
+    } else if (this.options.auth) {
+      templateType = 'auth-enabled';
+    } else if (this.options.db) {
+      templateType = \`db-\${this.options.db}\`;
+    }
+    
     const language = this.options.language === 'TypeScript' ? 'typescript' : 'javascript';
     return path.join(this.templatesPath, templateType, language);
   }
@@ -26,7 +35,7 @@ export class TemplateManager {
     const templatePath = this.getTemplatePath();
     
     if (!await fs.pathExists(templatePath)) {
-      throw new Error(`Template path not found: ${templatePath}`);
+      throw new Error(\`Template path not found: \${templatePath}\`);
     }
 
     await fs.copy(templatePath, destinationPath);
