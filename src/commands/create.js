@@ -1,5 +1,5 @@
 import { prompts } from '../utils/prompts.js';
-import { validator } from '../utils/validator.js';
+import { validator } from '../utils/validators.js';
 import { ProjectGenerator } from '../generators/ProjectGenerator.js';
 import { logger } from '../utils/logger.js';
 
