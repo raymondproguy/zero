@@ -12,6 +12,7 @@ program
   .command('create <project-name>')
   .description('Create a new project')
   .option('--auth', 'Include authentication foundation')
+  .option('--db <database>', 'Database type: postgres, mongodb, or sqlite')
   .action(createProject);
 
 program.parse();
