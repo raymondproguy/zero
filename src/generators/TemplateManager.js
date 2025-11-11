@@ -17,11 +17,11 @@ export class TemplateManager {
     let templateType = 'base';
     
     if (this.options.auth && this.options.db) {
-      templateType = \`auth-\${this.options.db}\`;
+      templateType = `auth-${this.options.db}`;
     } else if (this.options.auth) {
       templateType = 'auth-enabled';
     } else if (this.options.db) {
-      templateType = \`db-\${this.options.db}\`;
+      templateType = `db-${this.options.db}`;
     }
     
     const language = this.options.language === 'TypeScript' ? 'typescript' : 'javascript';
@@ -35,7 +35,7 @@ export class TemplateManager {
     const templatePath = this.getTemplatePath();
     
     if (!await fs.pathExists(templatePath)) {
-      throw new Error(\`Template path not found: \${templatePath}\`);
+      throw new Error(`Template path not found: ${templatePath}`);
     }
 
     await fs.copy(templatePath, destinationPath);

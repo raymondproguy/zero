@@ -1,5 +1,5 @@
 import { prompts } from '../utils/prompts.js';
-import { validator } from '../utils/validator.js';
+import { validator } from '../utils/validators.js';
 import { ProjectGenerator } from '../generators/ProjectGenerator.js';
 import { logger } from '../utils/logger.js';
 
@@ -26,7 +26,7 @@ export async function createProject(projectName, options) {
     await generator.generate();
     
   } catch (error) {
-    logger.error(\`Failed to create project: \${error.message}\`);
+    logger.error(`Failed to create project: ${error.message}`);
     process.exit(1);
   }
 }

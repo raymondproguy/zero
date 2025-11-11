@@ -18,7 +18,6 @@ export class ProjectGenerator {
   async generate() {
     await this.validate();
     await this.createProjectStructure();
-    await this.generateReadme();
     
     if (this.options.initGit) {
       await this.initGit();
@@ -40,18 +39,13 @@ export class ProjectGenerator {
   async createProjectStructure() {
     logger.info('Creating project structure...');
     
-    // Copy the complete template (base or auth-enabled)
+    // Copy the complete template
     await this.templateManager.copyTemplates(this.projectPath);
     
     // Update package.json with project name
     await this.templateManager.updatePackageJson(this.projectPath, this.projectName);
     
     logger.success('Project structure created');
-  }
-
-  async generateReadme() {
-    // README is already included in the templates
-    logger.success('README.md generated');
   }
 
   async initGit() {
@@ -83,11 +77,22 @@ export class ProjectGenerator {
       logger.info('\n🔐 Authentication Foundation Ready!');
       logger.info('✅ JWT and bcryptjs dependencies added');
       logger.info('✅ Environment variables configured');
-      logger.info('✅ Route structure prepared');
-      logger.info('\n📚 Next steps:');
-      logger.info('   1. Create auth routes in src/routes/');
-      logger.info('   2. Uncomment auth code in src/server.js');
-      logger.info('   3. Implement your database and business logic');
+    }
+    
+    if (this.options.db) {
+      logger.info(`\n🗄️  ${this.options.db.toUpperCase()} Database Ready!`);
+      
+      if (this.options.db === 'postgres') {
+        logger.info('✅ Prisma and PostgreSQL dependencies added');
+        logger.info('✅ Prisma schema created');
+        logger.info('📋 Run: npx prisma generate && npx prisma db push');
+      } else if (this.options.db === 'mongodb') {
+        logger.info('✅ Mongoose dependencies added');
+        logger.info('📋 Add connection in src/server.js');
+      } else if (this.options.db === 'sqlite') {
+        logger.info('✅ SQLite dependencies added');
+        logger.info('📋 Add connection in src/server.js');
+      }
     }
     
     logger.info('\n🚀 Get started:');
