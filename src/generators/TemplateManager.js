@@ -3,45 +3,51 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const TEMPLATES_DIR = path.join(__dirname, '../templates');
 
 export class TemplateManager {
-  static async getTemplate(templateName) {
-    const templatePath = path.join(TEMPLATES_DIR, templateName);
+  constructor(options = {}) {
+    this.templatesPath = path.join(__dirname, '../../templates');
+    this.options = options;
+  }
+
+  /**
+   * Get the correct template path based on options
+   */
+  getTemplatePath() {
+    const templateType = this.options.auth ? 'auth-enabled' : 'base';
+    const language = this.options.language === 'TypeScript' ? 'typescript' : 'javascript';
+    return path.join(this.templatesPath, templateType, language);
+  }
+
+  /**
+   * Copy templates to project directory
+   */
+  async copyTemplates(destinationPath) {
+    const templatePath = this.getTemplatePath();
     
     if (!await fs.pathExists(templatePath)) {
-      throw new Error(`Template "${templateName}" not found`);
+      throw new Error(`Template path not found: ${templatePath}`);
     }
+
+    await fs.copy(templatePath, destinationPath);
     
-    return templatePath;
+    // Rename _gitignore to .gitignore if it exists
+    const gitignorePath = path.join(destinationPath, '_gitignore');
+    if (await fs.pathExists(gitignorePath)) {
+      await fs.move(gitignorePath, path.join(destinationPath, '.gitignore'));
+    }
   }
 
-  static async copyTemplate(sourcePath, targetPath, variables = {}) {
-    await fs.ensureDir(targetPath);
-    await this.copyRecursive(sourcePath, targetPath, variables);
-  }
-
-  static async copyRecursive(source, target, variables) {
-    const files = await fs.readdir(source);
+  /**
+   * Update package.json with project name
+   */
+  async updatePackageJson(projectPath, projectName) {
+    const packageJsonPath = path.join(projectPath, 'package.json');
     
-    for (const file of files) {
-      const sourcePath = path.join(source, file);
-      const targetPath = path.join(target, file);
-      const stat = await fs.stat(sourcePath);
-
-      if (stat.isDirectory()) {
-        await fs.ensureDir(targetPath);
-        await this.copyRecursive(sourcePath, targetPath, variables);
-      } else {
-        let content = await fs.readFile(sourcePath, 'utf8');
-        
-        // Replace template variables
-        content = content.replace(/{{(\w+)}}/g, (match, key) => {
-          return variables[key] || match;
-        });
-        
-        await fs.writeFile(targetPath, content);
-      }
+    if (await fs.pathExists(packageJsonPath)) {
+      const packageJson = await fs.readJson(packageJsonPath);
+      packageJson.name = projectName;
+      await fs.writeJson(packageJsonPath, packageJson, { spaces: 2 });
     }
   }
 }
